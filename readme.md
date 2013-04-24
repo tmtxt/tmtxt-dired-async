@@ -7,8 +7,8 @@ is designed for Unix-based system like MacOS, Ubuntu,...
 
 # Installation
 
-- Clone this repo and put it somewhere in your load-path
-- Add this to your .emacs
+Clone this repo and put it somewhere in your load-path
+Add this to your .emacs
 
 	(require 'tmtxt-dired-async)
 
