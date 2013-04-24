@@ -14,6 +14,9 @@ Add this to your .emacs
 
 # Features
 
+You don't have to follow the key bindings below, you can change them to whatever
+you want. They are just examples.
+
 ## Asynchronously Copy files
 
 This feature uses **rsync** for file copying. To use it, simply mark the files
