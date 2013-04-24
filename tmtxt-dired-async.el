@@ -2,6 +2,9 @@
 ;;; asynchronously
 ;;; only run ob unix-based systems
 
+;;; TODO: stick the output window with the result buffer
+;;; using dedicated window
+
 (defvar tmtxt/dired-async-post-process-window-show-time
   "5" "The time to show the result window after the dired async process finish execution, measured in second. This is a string, so if you change this value, please set it as a string.")
 
