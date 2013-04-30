@@ -79,16 +79,6 @@
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
 ;;; Async Rsync
-(defvar tmtxt/dired-async-rsync-delete-method
-  "--delete-during" "Deletion method for dired async rsync delete. Its values can be
---delete-before
---delete-during
---delete-after")
-
-(defvar tmtxt/dired-async-rsync-allow-delete
-  nil "Allow dired async rsync to delete.
-Do not set this variable manually.")
-
 (defun tmtxt/dired-async-rsync (dest)
   "Asynchronously copy file using Rsync for dired.
 	This function runs only on Unix-based system.
@@ -99,7 +89,12 @@ Do not set this variable manually.")
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		dired-async-rsync-command)
 	;; the rsync command
-	(setq dired-async-rsync-command "rsync -avz --progress ")
+	(setq dired-async-rsync-command "rsync -avz ")
+	;; show progress?
+	(setq dired-async-rsync-command
+		  (concat dired-async-rsync-command
+				  (tmtxt/dired-async-rsync-progress-argument)
+				  " "))
 	;; allow delete?
 	(setq dired-async-rsync-command
 		  (concat dired-async-rsync-command
@@ -132,6 +127,14 @@ Do not set this variable manually.")
 	(tmtxt/dired-async-close-window process)))
 
 ;;; some support functions for async rsync
+(defvar tmtxt/dired-async-rsync-delete-method
+  "--delete-during" "Deletion method for dired async rsync delete. Its values can be
+--delete-before
+--delete-during
+--delete-after")
+(defvar tmtxt/dired-async-rsync-allow-delete
+  nil "Allow dired async rsync to delete.
+Do not set this variable manually.")
 (defun tmtxt/dired-async-rsync-delete-argument ()
   "Return the delete argument for rsync command"
   (when (equal tmtxt/dired-async-rsync-allow-delete t)
@@ -149,6 +152,16 @@ Do not set this variable manually.")
 						tmtxt/dired-async-rsync-delete-method)
 					   (t "--delete-before"))
 				 " ")))))
+
+(defvar tmtxt/dired-async-rsync-show-progress
+  t "If non-nil, show the progress of rsync process.")
+(defun tmtxt/dired-async-rsync-progress-argument ()
+  "Return the progress argument for rsync command"
+  (when (not (equal tmtxt/dired-async-rsync-show-progress nil))
+	(let (progress-option)
+	  (setq
+	   progress-option
+	   "--progress "))))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
