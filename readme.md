@@ -27,6 +27,22 @@ that you want and then activate this function.
 
 	(define-key dired-mode-map (kbd "C-c C-r") 'tmtxt/dired-async-rsync)
 
+Show the progress when copy
+
+	(setq-default tmtxt/dired-async-rsync-show-progress t)
+
+Show verbosity when copy
+
+	(setq-default tmtxt/dired-async-rsync-show-verbosity t)
+
+Use archive mode when copy (to preserve time stamp)
+
+	(setq-default tmtxt/dired-async-rsync-archive-mode t)
+
+User compression mode when copy
+
+	(setq-default tmtxt/dired-async-rsync-compress-mode t)
+
 ## Asynchronously Copy files (with delete option)
 
 This feature is similar to the above feature. It also uses **rsync** to copy
