@@ -98,7 +98,17 @@
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		dired-async-rsync-command)
 	;; the rsync command
-	(setq dired-async-rsync-command "rsync -az ")
+	(setq dired-async-rsync-command "rsync ")
+	;; compress file?
+	(setq dired-async-rsync-command
+		  (concat dired-async-rsync-command
+				  (tmtxt/dired-async-rsync-compress-argument)
+				  " "))
+	;; archive mode?
+	(setq dired-async-rsync-command
+		  (concat dired-async-rsync-command
+				  (tmtxt/dired-async-rsync-archive-argument)
+				  " "))
 	;; show verbosity?
 	(setq dired-async-rsync-command
 		  (concat dired-async-rsync-command
@@ -182,6 +192,22 @@ Do not set this variable manually.")
   (tmtxt/dired-async-argument
    tmtxt/dired-async-rsync-show-verbosity
    "--verbose "))
+
+(defvar tmtxt/dired-async-rsync-archive-mode
+  t "If non-nil, use archive mode for rsync.")
+(defun tmtxt/dired-async-rsync-archive-argument ()
+  "Return the progress argument for rsync command"
+  (tmtxt/dired-async-argument
+   tmtxt/dired-async-rsync-archive-mode
+   "--archive "))
+
+(defvar tmtxt/dired-async-rsync-compress-mode
+  t "If non-nil, use compression for rsync")
+(defun tmtxt/dired-async-rsync-compress-argument ()
+  "Return the progress argument for rsync command"
+  (tmtxt/dired-async-argument
+   tmtxt/dired-async-rsync-compress-mode
+   "--compress "))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
