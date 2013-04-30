@@ -98,7 +98,12 @@
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		dired-async-rsync-command)
 	;; the rsync command
-	(setq dired-async-rsync-command "rsync -avz ")
+	(setq dired-async-rsync-command "rsync -az ")
+	;; show verbosity?
+	(setq dired-async-rsync-command
+		  (concat dired-async-rsync-command
+				  (tmtxt/dired-async-rsync-verbose-argument)
+				  " "))
 	;; show progress?
 	(setq dired-async-rsync-command
 		  (concat dired-async-rsync-command
@@ -166,11 +171,17 @@ Do not set this variable manually.")
   t "If non-nil, show the progress of rsync process.")
 (defun tmtxt/dired-async-rsync-progress-argument ()
   "Return the progress argument for rsync command"
-  (when (not (equal tmtxt/dired-async-rsync-show-progress nil))
-	(let (progress-option)
-	  (setq
-	   progress-option
-	   "--progress "))))
+  (tmtxt/dired-async-argument
+   tmtxt/dired-async-rsync-show-progress
+   "--progress "))
+
+(defvar tmtxt/dired-async-rsync-show-verbosity
+  t "If non-nil, run rsync in verbose mode.")
+(defun tmtxt/dired-async-rsync-verbose-argument ()
+  "Return the progress argument for rsync command"
+  (tmtxt/dired-async-argument
+   tmtxt/dired-async-rsync-show-verbosity
+   "--verbose "))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
