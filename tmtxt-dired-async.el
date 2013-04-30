@@ -73,7 +73,7 @@
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		dired-async-rsync-command)
 	;; the rsync command
-	(setq dired-async-rsync-command "rsync -arvz --progress ")
+	(setq dired-async-rsync-command "rsync -avz --progress")
 	;; add all selected file names as arguments to the rsync command
 	(dolist (file files)
 	  (setq dired-async-rsync-command
