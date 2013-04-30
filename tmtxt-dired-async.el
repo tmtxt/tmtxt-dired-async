@@ -24,7 +24,9 @@
 	(let ((dired-async-window
 		   (split-window (frame-root-window) dired-async-window-height 'below)))
 	  (select-window dired-async-window)
-	  (set-window-parameter dired-async-window 'no-other-window t))))
+	  (set-window-parameter dired-async-window 'no-other-window t)
+	  ;; return the new window
+	  dired-async-window)))
 
 (defun tmtxt/dired-async-close-window (process)
   "Close the window that contain the process"
@@ -63,7 +65,7 @@
 		 (concat "*" dired-async-command-name "*" " at " (current-time-string))))
 
 	;; make a new window
-	(tmtxt/dired-async-new-async-window)
+	(select-window (tmtxt/dired-async-new-async-window))
 	;; not allow popup
 	(add-to-list 'same-window-buffer-names dired-async-output-buffer)
 	;; run async command
