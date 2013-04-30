@@ -35,7 +35,7 @@ the destination folder exactly the same as the source directory
 
 	(define-key dired-mode-map (kbd "C-c C-t") 'tmtxt/dired-async-rsync-delete)
 
-Set the deletion method for rsync delete
+Set the deletion method for rsync delete (--delete-after, --delete-during, --delete-before)
 
 	(setq-default tmtxt/dired-async-rsync-delete-method "--delete-after")
 
