@@ -27,11 +27,27 @@ that you want and then activate this function.
 
 	(define-key dired-mode-map (kbd "C-c C-r") 'tmtxt/dired-async-rsync)
 
+## Asynchronously Copy files (with delete option)
+
+This feature is similar to the above feature. It also uses **rsync** to copy
+file. However, it includes the delete option for rsync to ensure that you have
+the destination folder exactly the same as the source directory
+
+	(define-key dired-mode-map (kbd "C-c C-t") 'tmtxt/dired-async-rsync-delete)
+
+Set the deletion method for rsync delete
+
+	(setq-default tmtxt/dired-async-rsync-delete-method "--delete-after")
+
 ## Asynchronously Compress files
 
 Compress all marked files.
 
 	(define-key dired-mode-map (kbd "C-c C-z") 'tmtxt/dired-async-zip)
+
+Set the compression level, from 0-9
+
+	(setq-default tmtxt/dired-async-zip-compression-level "9")
 
 ## Asynchronously Decompress files
 
@@ -53,3 +69,13 @@ copy all of them to a destination folder.
 remove the current file at point from the waiting list. **C-c C-e** to empty the
 waiting list. Finally, **C-c C-v** to copy all files in the list to the current
 directory.
+
+## Other config
+
+Set the time to close the result window after finish, measured in second
+
+	(setq-default tmtxt/dired-async-post-process-window-show-time "5")
+
+Set the height for the result window, measured in the number of lines
+
+	(setq-default tmtxt/dired-async-result-window-height 10)
