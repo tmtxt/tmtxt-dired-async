@@ -101,23 +101,10 @@ Do not set this variable manually.")
 	;; the rsync command
 	(setq dired-async-rsync-command "rsync -avz --progress ")
 	;; allow delete?
-	(when (equal tmtxt/dired-async-rsync-allow-delete t)
-	  (let (delete-option)
-		(setq
-		 delete-option
-		 (concat "--delete "
-				 (cond ((equal
-						 tmtxt/dired-async-rsync-delete-method
-						 "--delete-during")
-						tmtxt/dired-async-rsync-delete-method)
-					   ((equal
-						 tmtxt/dired-async-rsync-delete-method
-						 "--delete-after")
-						tmtxt/dired-async-rsync-delete-method)
-					   (t "--delete-before"))
-				 " "))
-		(setq dired-async-rsync-command
-			  (concat dired-async-rsync-command delete-option " "))))
+	(setq dired-async-rsync-command
+		  (concat dired-async-rsync-command
+				  (tmtxt/dired-async-rsync-delete-argument)
+				  " "))
 	;; add all selected file names as arguments to the rsync command
 	(dolist (file files)
 	  (setq dired-async-rsync-command
@@ -143,6 +130,25 @@ Do not set this variable manually.")
   (when (equal (process-status process) 'exit)
 	;; get the current async buffer and window
 	(tmtxt/dired-async-close-window process)))
+
+;;; some support functions for async rsync
+(defun tmtxt/dired-async-rsync-delete-argument ()
+  "Return the delete argument for rsync command"
+  (when (equal tmtxt/dired-async-rsync-allow-delete t)
+	  (let (delete-option)
+		(setq
+		 delete-option
+		 (concat "--delete "
+				 (cond ((equal
+						 tmtxt/dired-async-rsync-delete-method
+						 "--delete-during")
+						tmtxt/dired-async-rsync-delete-method)
+					   ((equal
+						 tmtxt/dired-async-rsync-delete-method
+						 "--delete-after")
+						tmtxt/dired-async-rsync-delete-method)
+					   (t "--delete-before"))
+				 " ")))))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
