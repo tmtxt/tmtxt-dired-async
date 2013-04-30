@@ -107,7 +107,10 @@
 					   'tmtxt/dired-async-rsync-process-handler)))
 
 (defvar tmtxt/dired-async-rsync-delete-method
-  "--delete-during" "Deletion method for dired async rsync delete")
+  "--delete-during" "Deletion method for dired async rsync delete. Its values can be
+--delete-before
+--delete-during
+--delete-after")
 
 (defvar tmtxt/dired-async-rsync-allow-delete
   nil "Allow dired async rsync to delete.
