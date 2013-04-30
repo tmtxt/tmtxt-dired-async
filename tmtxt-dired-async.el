@@ -74,6 +74,24 @@
 		dired-async-rsync-command)
 	;; the rsync command
 	(setq dired-async-rsync-command "rsync -avz --progress ")
+	;; allow delete?
+	(when (equal tmtxt/dired-async-rsync-allow-delete t)
+	  (let (delete-option)
+		(setq
+		 delete-option
+		 (concat "--delete "
+				 (cond ((equal
+						 tmtxt/dired-async-rsync-delete-method
+						 "--delete-during")
+						tmtxt/dired-async-rsync-delete-method)
+					   ((equal
+						 tmtxt/dired-async-rsync-delete-method
+						 "--delete-after")
+						tmtxt/dired-async-rsync-delete-method)
+					   (t "--delete-before"))
+				 " "))
+		(setq dired-async-rsync-command
+			  (concat dired-async-rsync-command delete-option " "))))
 	;; add all selected file names as arguments to the rsync command
 	(dolist (file files)
 	  (setq dired-async-rsync-command
@@ -84,6 +102,26 @@
 	;; execute the command asynchronously
 	(tmtxt/dired-async dired-async-rsync-command "rsync"
 					   'tmtxt/dired-async-rsync-process-handler)))
+
+(defvar tmtxt/dired-async-rsync-delete-method
+  "--delete-during" "Deletion method for dired async rsync delete")
+
+(defvar tmtxt/dired-async-rsync-allow-delete
+  nil "Allow dired async rsync to delete.
+Do not set this variable manually.")
+
+(defun tmtxt/dired-async-rsync-delete (dest)
+  "Asynchronously copy file using Rsync for dired include the delete option
+	This function runs only on Unix-based system.
+	Usage: same as normal dired copy function."
+  (interactive ;; offer dwim target as the suggestion
+   (list (expand-file-name (read-file-name "Rsync delete to:" (dired-dwim-target-directory)))))
+  ;; allow delete
+  (setq tmtxt/dired-async-rsync-allow-delete t)
+  ;; call the rsync function
+  (tmtxt/dired-async-rsync dest)
+  ;; reset the delete option
+  (setq tmtxt/dired-async-rsync-allow-delete nil))
 
 (defun tmtxt/dired-async-rsync-process-handler (process event)
   "Handler for window that displays the async process.
