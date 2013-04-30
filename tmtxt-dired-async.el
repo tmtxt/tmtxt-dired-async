@@ -1,15 +1,30 @@
-;;; an collection of functions that I developed to execute some command
+;;; an collection of functions that I developed to execute some commands
 ;;; asynchronously
 ;;; only run ob unix-based systems
 
 ;;; TODO: stick the output window with the result buffer
 ;;; using dedicated window
+;;; TODO: shortcut keys for close the result window
+;;; TODO: check process exit status, if not success, not close the result window
+;;; TODO: undo function
 
+;;; ----------------------------------------------
+;;; ----------------------------------------------
+;;; create new window and close window function
 (defvar tmtxt/dired-async-post-process-window-show-time
   "5" "The time to show the result window after the dired async process finish execution, measured in second. This is a string, so if you change this value, please set it as a string.")
 
 (defvar tmtxt/dired-async-result-window-height
   10 "The height of the result window for the dired async process, measured by the number of lines. This is a number, so if you change this value, please set it as a number.")
+
+(defun tmtxt/dired-async-new-async-window ()
+  "Create a new window for displaying tmtxt/dired-async process and switch to that window"
+  (let ((dired-async-window-height (- (window-total-height (frame-root-window))
+									  (+ tmtxt/dired-async-result-window-height 1))))
+	(let ((dired-async-window
+		   (split-window (frame-root-window) dired-async-window-height 'below)))
+	  (select-window dired-async-window)
+	  (set-window-parameter dired-async-window 'no-other-window t))))
 
 (defun tmtxt/dired-async-close-window (process)
   "Close the window that contain the process"
@@ -29,15 +44,9 @@
 	  (run-at-time (concat tmtxt/dired-async-post-process-window-show-time " sec")
 				   nil 'kill-buffer current-async-buffer))))
 
-(defun tmtxt/dired-async-new-async-window ()
-  "Create a new window for displaying tmtxt/dired-async process and switch to that window"
-  (let ((dired-async-window-height (- (window-total-height (frame-root-window))
-									  (+ tmtxt/dired-async-result-window-height 1))))
-	(let ((dired-async-window
-		   (split-window (frame-root-window) dired-async-window-height 'below)))
-	  (select-window dired-async-window)
-	  (set-window-parameter dired-async-window 'no-other-window t))))
-
+;;; ----------------------------------------------
+;;; ----------------------------------------------
+;;; main function for executing async command
 (defun tmtxt/dired-async (dired-async-command
 						  dired-async-command-name
 						  dired-async-handler-function)
@@ -65,7 +74,19 @@
 	;; switch the the previous window
 	(select-window dired-async-window-before-sync)))
 
-;; Rsync
+;;; ----------------------------------------------
+;;; ----------------------------------------------
+;;; Async Rsync
+(defvar tmtxt/dired-async-rsync-delete-method
+  "--delete-during" "Deletion method for dired async rsync delete. Its values can be
+--delete-before
+--delete-during
+--delete-after")
+
+(defvar tmtxt/dired-async-rsync-allow-delete
+  nil "Allow dired async rsync to delete.
+Do not set this variable manually.")
+
 (defun tmtxt/dired-async-rsync (dest)
   "Asynchronously copy file using Rsync for dired.
 	This function runs only on Unix-based system.
@@ -106,29 +127,6 @@
 	(tmtxt/dired-async dired-async-rsync-command "rsync"
 					   'tmtxt/dired-async-rsync-process-handler)))
 
-(defvar tmtxt/dired-async-rsync-delete-method
-  "--delete-during" "Deletion method for dired async rsync delete. Its values can be
---delete-before
---delete-during
---delete-after")
-
-(defvar tmtxt/dired-async-rsync-allow-delete
-  nil "Allow dired async rsync to delete.
-Do not set this variable manually.")
-
-(defun tmtxt/dired-async-rsync-delete (dest)
-  "Asynchronously copy file using Rsync for dired include the delete option
-	This function runs only on Unix-based system.
-	Usage: same as normal dired copy function."
-  (interactive ;; offer dwim target as the suggestion
-   (list (expand-file-name (read-file-name "Rsync delete to:" (dired-dwim-target-directory)))))
-  ;; allow delete
-  (setq tmtxt/dired-async-rsync-allow-delete t)
-  ;; call the rsync function
-  (tmtxt/dired-async-rsync dest)
-  ;; reset the delete option
-  (setq tmtxt/dired-async-rsync-allow-delete nil))
-
 (defun tmtxt/dired-async-rsync-process-handler (process event)
   "Handler for window that displays the async process.
 
@@ -144,10 +142,28 @@ Do not set this variable manually.")
 	;; get the current async buffer and window
 	(tmtxt/dired-async-close-window process)))
 
+;;; ----------------------------------------------
+;;; ----------------------------------------------
+;;; Rsync with delete option function
+(defun tmtxt/dired-async-rsync-delete (dest)
+  "Asynchronously copy file using Rsync for dired include the delete option
+	This function runs only on Unix-based system.
+	Usage: same as normal dired copy function."
+  (interactive ;; offer dwim target as the suggestion
+   (list (expand-file-name (read-file-name "Rsync delete to:" (dired-dwim-target-directory)))))
+  ;; allow delete
+  (setq tmtxt/dired-async-rsync-allow-delete t)
+  ;; call the rsync function
+  (tmtxt/dired-async-rsync dest)
+  ;; reset the delete option
+  (setq tmtxt/dired-async-rsync-allow-delete nil))
+
+;;; ----------------------------------------------
+;;; ----------------------------------------------
+;;; async zip files
 (defvar tmtxt/dired-async-zip-compression-level
   "9" "The compression level for dired async zip command, from 0-9. This variable is a string, so if you change this value, please set it as a string.")
 
-;; Compress function
 (defun tmtxt/dired-async-zip (output)
   "Asynchronously compress marked files to the output file"
   (interactive
@@ -186,7 +202,9 @@ Do not set this variable manually.")
 	;; get the current async buffer and window
 	(tmtxt/dired-async-close-window process)))
 
-;; Uncompress function
+;;; ----------------------------------------------
+;;; ----------------------------------------------
+;;; Uncompress function
 (defun tmtxt/dired-async-unzip ()
   "Asynchronously decompress the zip file at point"
   (interactive)
@@ -230,6 +248,9 @@ Do not set this variable manually.")
 	;; get the current async buffer and window
 	(tmtxt/dired-async-close-window process)))
 
+;;; ----------------------------------------------
+;;; ----------------------------------------------
+;;; Rsync from multiple directories
 (defvar tmtxt/dired-async-rsync-multiple-file-list
   () "The list of the files to be copied")
 
