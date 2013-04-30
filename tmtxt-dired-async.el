@@ -99,31 +99,10 @@
 		dired-async-rsync-command)
 	;; the rsync command
 	(setq dired-async-rsync-command "rsync ")
-	;; compress file?
+	;; append the arguments for rsync command
 	(setq dired-async-rsync-command
-		  (concat dired-async-rsync-command
-				  (tmtxt/dired-async-rsync-compress-argument)
-				  " "))
-	;; archive mode?
-	(setq dired-async-rsync-command
-		  (concat dired-async-rsync-command
-				  (tmtxt/dired-async-rsync-archive-argument)
-				  " "))
-	;; show verbosity?
-	(setq dired-async-rsync-command
-		  (concat dired-async-rsync-command
-				  (tmtxt/dired-async-rsync-verbose-argument)
-				  " "))
-	;; show progress?
-	(setq dired-async-rsync-command
-		  (concat dired-async-rsync-command
-				  (tmtxt/dired-async-rsync-progress-argument)
-				  " "))
-	;; allow delete?
-	(setq dired-async-rsync-command
-		  (concat dired-async-rsync-command
-				  (tmtxt/dired-async-rsync-delete-argument)
-				  " "))
+		 (concat dired-async-rsync-command
+				 (tmtxt/dired-async-rsync-arguments)))
 	;; add all selected file names as arguments to the rsync command
 	(dolist (file files)
 	  (setq dired-async-rsync-command
@@ -151,6 +130,16 @@
 	(tmtxt/dired-async-close-window process)))
 
 ;;; some support functions for async rsync
+(defun tmtxt/dired-async-rsync-arguments ()
+  "Return the arguments list for rsync command"
+  (let (argument-string)
+	(setq argument-string
+		  (concat (tmtxt/dired-async-rsync-delete-argument)
+				  (tmtxt/dired-async-rsync-progress-argument)
+				  (tmtxt/dired-async-rsync-verbose-argument)
+				  (tmtxt/dired-async-rsync-archive-argument)
+				  (tmtxt/dired-async-rsync-compress-argument)))))
+
 (defvar tmtxt/dired-async-rsync-delete-method
   "--delete-during" "Deletion method for dired async rsync delete. Its values can be
 --delete-before
