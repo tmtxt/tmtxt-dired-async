@@ -46,8 +46,9 @@ User compression mode when copy
 ## Asynchronously Copy files (with delete option)
 
 This feature is similar to the above feature. It also uses **rsync** to copy
-file. However, it includes the delete option for rsync to ensure that you have
-the destination folder exactly the same as the source directory
+file and the same config with the above. However, it includes the delete option
+for rsync to ensure that you have the destination folder exactly the same as the
+source directory
 
 	(define-key dired-mode-map (kbd "C-c C-t") 'tmtxt/dired-async-rsync-delete)
 
