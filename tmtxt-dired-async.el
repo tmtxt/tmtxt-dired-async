@@ -48,6 +48,15 @@
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
+;;; argument for command
+(defun tmtxt/dired-async-argument
+  (cond-variable argument-string)
+  "Check if the cond-variable is non-nil, return the argument string"
+  (when (not (equal cond-variable nil))
+	argument-string))
+
+;;; ----------------------------------------------
+;;; ----------------------------------------------
 ;;; main function for executing async command
 (defun tmtxt/dired-async (dired-async-command
 						  dired-async-command-name
