@@ -17,12 +17,16 @@
 (defvar tmtxt/dired-async-result-window-height
   10 "The height of the result window for the dired async process, measured by the number of lines. This is a number, so if you change this value, please set it as a number.")
 
+(defvar tmtxt/dired-async-buffer-list
+  () "The list of all current dired async buffers. Do not set this variable manually.")
+
 (defun tmtxt/dired-async-new-async-window ()
   "Create a new window for displaying tmtxt/dired-async process and switch to that window"
   (let ((dired-async-window-height (- (window-total-height (frame-root-window))
 									  (+ tmtxt/dired-async-result-window-height 1))))
 	(let ((dired-async-window
 		   (split-window (frame-root-window) dired-async-window-height 'below)))
+	  ;; not allow other-window
 	  (set-window-parameter dired-async-window 'no-other-window t)
 	  ;; return the new window
 	  dired-async-window)))
@@ -37,6 +41,9 @@
 		tmtxt/dired-async-post-process-window-show-time
 		" seconds.")
 	   current-async-buffer)
+	  ;; remove the the buffer from the buffer list
+	  (setq tmtxt/dired-async-buffer-list
+	  		(remove (buffer-name current-async-buffer) tmtxt/dired-async-buffer-list))
 	  (set-window-point current-async-window
 						(buffer-size current-async-buffer))
 	  ;; kill the buffer and window after 5 seconds
@@ -81,6 +88,8 @@
 	;; set event handler for the async process
 	(set-process-sentinel (get-buffer-process dired-async-output-buffer)
 						  dired-async-handler-function)
+	;; add the new async buffer to the buffer list
+	(add-to-list 'tmtxt/dired-async-buffer-list dired-async-output-buffer)
 	;; switch the the previous window
 	(select-window dired-async-window-before-sync)))
 
