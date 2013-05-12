@@ -23,7 +23,6 @@
 									  (+ tmtxt/dired-async-result-window-height 1))))
 	(let ((dired-async-window
 		   (split-window (frame-root-window) dired-async-window-height 'below)))
-	  (select-window dired-async-window)
 	  (set-window-parameter dired-async-window 'no-other-window t)
 	  ;; return the new window
 	  dired-async-window)))
