@@ -95,6 +95,26 @@
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
+;;; Kill all
+(defun tmtxt/dired-async-kill-all ()
+  "Kill all current dired async processes."
+  (interactive)
+  ;; kill all async buffer from the buffer list
+  (dolist (buffer tmtxt/dired-async-buffer-list)
+	;; get the window contains the buffer
+	(let ((window (get-buffer-window buffer)))
+	  ;; remove process sentinel
+	  (set-process-sentinel (get-buffer-process buffer)
+							nil)
+	  ;; kill the buffer
+	  (kill-buffer buffer)
+	  ;; delete the window
+	  (delete-window window))
+	;; empty the list
+	(setq tmtxt/dired-async-buffer-list ())))
+
+;;; ----------------------------------------------
+;;; ----------------------------------------------
 ;;; Async Rsync
 (defun tmtxt/dired-async-rsync (dest)
   "Asynchronously copy file using Rsync for dired.
