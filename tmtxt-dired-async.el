@@ -106,6 +106,8 @@
 	  ;; remove process sentinel
 	  (set-process-sentinel (get-buffer-process buffer)
 							nil)
+	  ;; delete the process
+	  (delete-process (get-buffer-process buffer))
 	  ;; kill the buffer
 	  (kill-buffer buffer)
 	  ;; delete the window
