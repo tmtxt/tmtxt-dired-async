@@ -95,6 +95,17 @@
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
+;;; move point to the end
+(defun tmtxt/dired-async-move-all-points-to-end ()
+  "Move the point of all current async buffers to the end.
+	Sometimes the points in async output buffers stop somewhere in the middle of the buffer, not move to the end to track the progress. Activating this function to fix it."
+  (interactive)
+  (dolist (buffer tmtxt/dired-async-buffer-list)
+	(set-window-point (get-buffer-window buffer)
+						(buffer-size (get-buffer buffer)))))
+
+;;; ----------------------------------------------
+;;; ----------------------------------------------
 ;;; Kill all
 (defun tmtxt/dired-async-kill-all ()
   "Kill all current dired async processes."
