@@ -27,19 +27,19 @@ that you want and then activate this function.
 
 	(define-key dired-mode-map (kbd "C-c C-r") 'tmtxt/dired-async-rsync)
 
-Show the progress when copy
+Show the progress when copy (nil to not show).
 
 	(setq-default tmtxt/dired-async-rsync-show-progress t)
 
-Show verbosity when copy
+Show verbosity when copy (nil to not show).
 
 	(setq-default tmtxt/dired-async-rsync-show-verbosity t)
 
-Use archive mode when copy (to preserve time stamp)
+Use archive mode when copy (to preserve time stamp, nil to not use)
 
 	(setq-default tmtxt/dired-async-rsync-archive-mode t)
 
-User compression mode when copy
+User compression mode when copy (nil to not use).
 
 	(setq-default tmtxt/dired-async-rsync-compress-mode t)
 
