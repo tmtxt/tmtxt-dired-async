@@ -87,6 +87,12 @@ remove the current file at point from the waiting list. **C-c C-e** to empty the
 waiting list. Finally, **C-c C-v** to copy all files in the list to the current
 directory.
 
+## Stop all current async tasks
+
+This function helps you stop all currently running async taks.
+
+	(define-key dired-mode-map (kbd "C-c C-k") 'tmtxt/dired-async-kill-all)
+
 ## Other config
 
 Set the time to close the result window after finish, measured in second
