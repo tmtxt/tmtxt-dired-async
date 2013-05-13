@@ -93,6 +93,14 @@ This function helps you stop all currently running async taks.
 
 	(define-key dired-mode-map (kbd "C-c C-k") 'tmtxt/dired-async-kill-all)
 
+## Jump to the end of the output buffer
+
+Sometimes, the point in the output buffer stucks somewhere in the middle of the
+output buffer and will not auto scroll for user to track the progress. Activate
+this function to fix it.
+
+	(define-key dired-mode-map (kbd "C-c C-n") 'tmtxt/dired-async-move-all-points-to-end)
+
 ## Other config
 
 Set the time to close the result window after finish, measured in second
