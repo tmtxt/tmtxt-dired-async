@@ -13,7 +13,9 @@ For more information, please refer to this project's homepage:
 Clone this repo and put it somewhere in your load-path  
 Add this to your .emacs
 
-	(require 'tmtxt-dired-async)
+```lisp
+(require 'tmtxt-dired-async)
+```
 
 # Features
 
@@ -25,23 +27,33 @@ you want. They are just examples.
 This feature uses **rsync** for file copying. To use it, simply mark the files
 that you want and then activate this function.
 
-	(define-key dired-mode-map (kbd "C-c C-r") 'tmtxt/dired-async-rsync)
+```lisp
+(define-key dired-mode-map (kbd "C-c C-r") 'tmtxt/dired-async-rsync)
+```
 
 Show the progress when copy (nil to not show).
 
-	(setq-default tmtxt/dired-async-rsync-show-progress t)
+```lisp
+(setq-default tmtxt/dired-async-rsync-show-progress t)
+```
 
 Show verbosity when copy (nil to not show).
 
-	(setq-default tmtxt/dired-async-rsync-show-verbosity t)
+```lisp
+(setq-default tmtxt/dired-async-rsync-show-verbosity t)
+```
 
 Use archive mode when copy (to preserve time stamp, nil to not use)
 
-	(setq-default tmtxt/dired-async-rsync-archive-mode t)
+```lisp
+(setq-default tmtxt/dired-async-rsync-archive-mode t)
+```
 
 User compression mode when copy (nil to not use).
 
-	(setq-default tmtxt/dired-async-rsync-compress-mode t)
+```lisp
+(setq-default tmtxt/dired-async-rsync-compress-mode t)
+```
 
 ## Asynchronously Copy files (with delete option)
 
@@ -50,37 +62,49 @@ file and the same config with the above. However, it includes the delete option
 for rsync to ensure that you have the destination folder exactly the same as the
 source directory
 
-	(define-key dired-mode-map (kbd "C-c C-t") 'tmtxt/dired-async-rsync-delete)
+```lisp
+(define-key dired-mode-map (kbd "C-c C-t") 'tmtxt/dired-async-rsync-delete)
+```
 
 Set the deletion method for rsync delete (--delete-after, --delete-during, --delete-before)
 
-	(setq-default tmtxt/dired-async-rsync-delete-method "--delete-after")
+```lisp
+(setq-default tmtxt/dired-async-rsync-delete-method "--delete-after")
+```
 
 ## Asynchronously Compress files
 
 Compress all marked files.
 
-	(define-key dired-mode-map (kbd "C-c C-z") 'tmtxt/dired-async-zip)
+```lisp
+(define-key dired-mode-map (kbd "C-c C-z") 'tmtxt/dired-async-zip)
+```
 
 Set the compression level, from 0-9
 
-	(setq-default tmtxt/dired-async-zip-compression-level "9")
+```lisp
+(setq-default tmtxt/dired-async-zip-compression-level "9")
+```
 
 ## Asynchronously Decompress files
 
 Decompress the zip file at point.
 
-	(define-key dired-mode-map (kbd "C-c C-u") 'tmtxt/dired-async-unzip)
+```lisp
+(define-key dired-mode-map (kbd "C-c C-u") 'tmtxt/dired-async-unzip)
+```
 
 ## Copy from multiple directories
 
 This feature allows you to select many files from multi directories and then
 copy all of them to a destination folder.
 
-	(define-key dired-mode-map (kbd "C-c C-a") 'tmtxt/dired-async-rsync-multiple-mark-file)
-	(define-key dired-mode-map (kbd "C-c C-e") 'tmtxt/dired-async-rsync-multiple-empty-list)
-	(define-key dired-mode-map (kbd "C-c C-d") 'tmtxt/dired-async-rsync-multiple-remove-item)
-	(define-key dired-mode-map (kbd "C-c C-v") 'tmtxt/dired-async-rsync-multiple)
+```lisp
+(define-key dired-mode-map (kbd "C-c C-a") 'tmtxt/dired-async-rsync-multiple-mark-file)
+(define-key dired-mode-map (kbd "C-c C-e") 'tmtxt/dired-async-rsync-multiple-empty-list)
+(define-key dired-mode-map (kbd "C-c C-d") 'tmtxt/dired-async-rsync-multiple-remove-item)
+(define-key dired-mode-map (kbd "C-c C-v") 'tmtxt/dired-async-rsync-multiple)
+```
 
 **C-c C-a** to add the file at point to the list for later copy. **C-c C-d** to
 remove the current file at point from the waiting list. **C-c C-e** to empty the
@@ -100,7 +124,9 @@ files.
 
 This function helps you stop all currently running async taks.
 
-	(define-key dired-mode-map (kbd "C-c C-k") 'tmtxt/dired-async-kill-all)
+```lisp
+(define-key dired-mode-map (kbd "C-c C-k") 'tmtxt/dired-async-kill-all)
+```
 
 ## Jump to the end of the output buffer
 
@@ -108,14 +134,20 @@ Sometimes, the point in the output buffer stucks somewhere in the middle of the
 output buffer and will not auto scroll for user to track the progress. Activate
 this function to fix it.
 
-	(define-key dired-mode-map (kbd "C-c C-n") 'tmtxt/dired-async-move-all-points-to-end)
+```lisp
+(define-key dired-mode-map (kbd "C-c C-n") 'tmtxt/dired-async-move-all-points-to-end)
+```
 
 ## Other config
 
 Set the time to close the result window after finish, measured in second
 
-	(setq-default tmtxt/dired-async-post-process-window-show-time "5")
+```lisp
+(setq-default tmtxt/dired-async-post-process-window-show-time "5")
+```
 
 Set the height for the result window, measured in the number of lines
 
-	(setq-default tmtxt/dired-async-result-window-height 10)
+```lisp
+(setq-default tmtxt/dired-async-result-window-height 10)
+```
