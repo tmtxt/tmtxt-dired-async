@@ -87,6 +87,15 @@ remove the current file at point from the waiting list. **C-c C-e** to empty the
 waiting list. Finally, **C-c C-v** to copy all files in the list to the current
 directory.
 
+## Get multiple files size
+
+This feature uses the command `du` to calculate the total size of all marked
+files.
+
+```lisp
+(define-key dired-mode-map (kbd "C-c C-s") 'tmtxt/dired-async-get-files-size)
+```
+
 ## Stop all current async tasks
 
 This function helps you stop all currently running async taks.
