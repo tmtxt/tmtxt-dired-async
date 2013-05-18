@@ -128,6 +128,41 @@
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
+;;; get file size
+(defun tmtxt/dired-async-get-files-size ()
+  (interactive)
+  (let ((files (dired-get-marked-files))
+		dired-async-get-size-command)
+	;; the get files size command
+	(setq dired-async-get-size-command "du -h -c ")
+	;; add selected file names as arguments to the command
+	(dolist (file files)
+	  (setq dired-async-get-size-command
+			(concat dired-async-get-size-command (shell-quote-argument file) " ")))
+	;; execute the command
+	(tmtxt/dired-async dired-async-get-size-command "file size"
+					   'tmtxt/dired-async-get-files-size-process-handler)))
+
+(defun tmtxt/dired-async-get-files-size-process-handler (process event)
+  (when (equal (process-status process) 'exit)
+	(let ((current-async-buffer (process-buffer process))
+		  (current-window (selected-window)))
+	(let ((current-async-window (get-buffer-window current-async-buffer)))
+	  ;; set point to the end
+	  (set-window-point current-async-window
+						(buffer-size current-async-buffer))
+	  ;; change to the result window
+	  (select-window current-async-window)
+	  ;; print the message
+	  (message
+	   (buffer-substring (line-beginning-position) (line-end-position)))
+	  ;; switch back the the previous window
+	  (select-window current-window)))
+	;; close the window
+	(tmtxt/dired-async-close-window process)))
+
+;;; ----------------------------------------------
+;;; ----------------------------------------------
 ;;; Async Rsync
 (defun tmtxt/dired-async-rsync (dest)
   "Asynchronously copy file using Rsync for dired.
