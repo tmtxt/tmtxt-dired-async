@@ -17,23 +17,26 @@
   (when (not (equal cond-variable nil))
 	argument-string))
 
+(defvar tda/get-files-size-command "du"
+  "The name of the command for getting file size. By default, it's \"du\". If your \"du\" command is outside the load path, set the variable to the path of du executable. For example (setq tda/get-files-size-command \"/usr/bin/du\")")
 
 ;;; get file size
-(defun tmtxt/dired-async-get-files-size ()
+(defun tda/get-files-size ()
+  "Calculate files size for all the marked files"
   (interactive)
-  (let ((files (dired-get-marked-files))
-		dired-async-get-size-command)
+  (let ((files (dired-get-marked-files)) command)
 	;; the get files size command
-	(setq dired-async-get-size-command "du -h -c ")
+	(setq command tda/get-files-size-command)
+	(setq command (concat command " -hc "))
 	;; add selected file names as arguments to the command
 	(dolist (file files)
-	  (setq dired-async-get-size-command
-			(concat dired-async-get-size-command (shell-quote-argument file) " ")))
+	  (setq command (concat command (shell-quote-argument file) " ")))
+	(message command)
 	;; execute the command
-	(tmtxt/dired-async dired-async-get-size-command "file size"
-					   'tmtxt/dired-async-get-files-size-process-handler)))
+	(tat/execute-async command "file size"
+					   'tda/get-files-size-handler)))
 
-(defun tmtxt/dired-async-get-files-size-process-handler (process event)
+(defun tda/get-files-size-handler (process event)
   (when (equal (process-status process) 'exit)
 	(let ((current-async-buffer (process-buffer process))
 		  (current-window (selected-window)))
@@ -49,7 +52,7 @@
 	  ;; switch back the the previous window
 	  (select-window current-window)))
 	;; close the window
-	(tmtxt/dired-async-close-window process)))
+	(tat/close-window process)))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
