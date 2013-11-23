@@ -10,50 +10,6 @@
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
-;;; create new window and close window function
-(defvar tmtxt/dired-async-post-process-window-show-time
-  "5" "The time to show the result window after the dired async process finish execution, measured in second. This is a string, so if you change this value, please set it as a string.")
-
-(defvar tmtxt/dired-async-result-window-height
-  10 "The height of the result window for the dired async process, measured by the number of lines. This is a number, so if you change this value, please set it as a number.")
-
-(defvar tmtxt/dired-async-buffer-list
-  () "The list of all current dired async buffers. Do not set this variable manually.")
-
-(defun tmtxt/dired-async-new-async-window ()
-  "Create a new window for displaying tmtxt/dired-async process and switch to that window"
-  (let ((dired-async-window-height (- (window-total-height (frame-root-window))
-									  (+ tmtxt/dired-async-result-window-height 1))))
-	(let ((dired-async-window
-		   (split-window (frame-root-window) dired-async-window-height 'below)))
-	  ;; not allow other-window
-	  (set-window-parameter dired-async-window 'no-other-window t)
-	  ;; return the new window
-	  dired-async-window)))
-
-(defun tmtxt/dired-async-close-window (process)
-  "Close the window that contain the process"
-  (let ((current-async-buffer (process-buffer process)))
-	(let ((current-async-window (get-buffer-window current-async-buffer)))
-	  (print
-	   (concat
-		"Process completed.\nThe window will be closed automatically in "
-		tmtxt/dired-async-post-process-window-show-time
-		" seconds.")
-	   current-async-buffer)
-	  ;; remove the the buffer from the buffer list
-	  (setq tmtxt/dired-async-buffer-list
-	  		(remove (buffer-name current-async-buffer) tmtxt/dired-async-buffer-list))
-	  (set-window-point current-async-window
-						(buffer-size current-async-buffer))
-	  ;; kill the buffer and window after 5 seconds
-	  (run-at-time (concat tmtxt/dired-async-post-process-window-show-time " sec")
-				   nil 'delete-window current-async-window)
-	  (run-at-time (concat tmtxt/dired-async-post-process-window-show-time " sec")
-				   nil 'kill-buffer current-async-buffer))))
-
-;;; ----------------------------------------------
-;;; ----------------------------------------------
 ;;; argument for command
 (defun tmtxt/dired-async-argument
   (cond-variable argument-string)
@@ -61,73 +17,7 @@
   (when (not (equal cond-variable nil))
 	argument-string))
 
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; main function for executing async command
-(defun tmtxt/dired-async (dired-async-command
-						  dired-async-command-name
-						  dired-async-handler-function)
-  "Execute the async shell command in dired.
-	dired-async-command: the command to execute
-	dired-async-command-name: just the name for the output buffer
-	dired-async-handler-function: the function for handling process
 
-	Create a new window at the bottom, execute the dired-async-command and print
-	the output the that window. After finish execution, print the message to that
-	window and close it after 5s"
-  (let ((dired-async-window-before-sync (selected-window))
-		(dired-async-output-buffer
-		 (concat "*" dired-async-command-name "*" " at " (current-time-string))))
-
-	;; make a new window
-	(select-window (tmtxt/dired-async-new-async-window))
-	;; not allow popup
-	(add-to-list 'same-window-buffer-names dired-async-output-buffer)
-	;; run async command
-	(async-shell-command dired-async-command dired-async-output-buffer)
-	;; set event handler for the async process
-	(set-process-sentinel (get-buffer-process dired-async-output-buffer)
-						  dired-async-handler-function)
-	;; add the new async buffer to the buffer list
-	(add-to-list 'tmtxt/dired-async-buffer-list dired-async-output-buffer)
-	;; switch the the previous window
-	(select-window dired-async-window-before-sync)))
-
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; move point to the end
-(defun tmtxt/dired-async-move-all-points-to-end ()
-  "Move the point of all current async buffers to the end.
-	Sometimes the points in async output buffers stop somewhere in the middle of the buffer, not move to the end to track the progress. Activating this function to fix it."
-  (interactive)
-  (dolist (buffer tmtxt/dired-async-buffer-list)
-	(set-window-point (get-buffer-window buffer)
-						(buffer-size (get-buffer buffer)))))
-
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; Kill all
-(defun tmtxt/dired-async-kill-all ()
-  "Kill all current dired async processes."
-  (interactive)
-  ;; kill all async buffer from the buffer list
-  (dolist (buffer tmtxt/dired-async-buffer-list)
-	;; get the window contains the buffer
-	(let ((window (get-buffer-window buffer)))
-	  ;; remove process sentinel
-	  (set-process-sentinel (get-buffer-process buffer)
-							nil)
-	  ;; delete the process
-	  (delete-process (get-buffer-process buffer))
-	  ;; kill the buffer
-	  (kill-buffer buffer)
-	  ;; delete the window
-	  (delete-window window))
-	;; empty the list
-	(setq tmtxt/dired-async-buffer-list ())))
-
-;;; ----------------------------------------------
-;;; ----------------------------------------------
 ;;; get file size
 (defun tmtxt/dired-async-get-files-size ()
   (interactive)
