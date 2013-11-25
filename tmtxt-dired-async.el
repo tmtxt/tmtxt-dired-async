@@ -44,7 +44,6 @@
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
    (list (expand-file-name (read-file-name "Rsync to:" (dired-dwim-target-directory)))))
-  
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		command)
 	;; the rsync command
@@ -64,7 +63,6 @@
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
    (list (expand-file-name (read-file-name "Rsync to:" (dired-dwim-target-directory)))))
-  
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		command)
 	;; the rsync command
@@ -78,21 +76,43 @@
 	;; execute the command asynchronously
 	(tat/execute-async command "rsync")))
 
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; Rsync with delete option function
-(defun tmtxt/dired-async-rsync-delete (dest)
+(defun tmtxt/rsync-delete (dest)
   "Asynchronously copy file using Rsync for dired include the delete option
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
    (list (expand-file-name (read-file-name "Rsync delete to:" (dired-dwim-target-directory)))))
-  ;; allow delete
-  (setq tmtxt/dired-async-rsync-allow-delete t)
-  ;; call the rsync function
-  (tmtxt/dired-async-rsync dest)
-  ;; reset the delete option
-  (setq tmtxt/dired-async-rsync-allow-delete nil))
+  (let ((files (dired-get-marked-files nil current-prefix-arg))
+		command)
+	;; the rsync command
+	(setq command
+		  (concat tda/rsync-command-name " " tda/rsync-arguments " --delete "))
+	;; add all selected file names as arguments to the rsync command
+	(dolist (file files)
+	  (setq command (concat command (shell-quote-argument file) " ")))
+	;; append the destination to the rsync command
+	(setq command (concat command (shell-quote-argument dest)))
+	;; execute the command asynchronously
+	(tat/execute-async command "rsync")))
+
+(defun tmtxt/rsync-delete-sudo (dest)
+  "Asynchronously copy file using Rsync for dired include the delete option
+	This function runs only on Unix-based system.
+	Usage: same as normal dired copy function."
+  (interactive ;; offer dwim target as the suggestion
+   (list (expand-file-name (read-file-name "Rsync delete to:" (dired-dwim-target-directory)))))
+  (let ((files (dired-get-marked-files nil current-prefix-arg))
+		command)
+	;; the rsync command
+	(setq command
+		  (concat "sudo " tda/rsync-command-name " " tda/rsync-arguments " --delete "))
+	;; add all selected file names as arguments to the rsync command
+	(dolist (file files)
+	  (setq command (concat command (shell-quote-argument file) " ")))
+	;; append the destination to the rsync command
+	(setq command (concat command (shell-quote-argument dest)))
+	;; execute the command asynchronously
+	(tat/execute-async command "rsync")))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
