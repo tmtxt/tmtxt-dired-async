@@ -76,7 +76,7 @@
 	;; execute the command asynchronously
 	(tat/execute-async command "rsync")))
 
-(defun tmtxt/rsync-delete (dest)
+(defun tda/rsync-delete (dest)
   "Asynchronously copy file using Rsync for dired include the delete option
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
@@ -95,7 +95,7 @@
 	;; execute the command asynchronously
 	(tat/execute-async command "rsync")))
 
-(defun tmtxt/rsync-delete-sudo (dest)
+(defun tda/rsync-delete-sudo (dest)
   "Asynchronously copy file using Rsync for dired include the delete option
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
@@ -117,46 +117,33 @@
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
 ;;; async zip files
-(defvar tmtxt/dired-async-zip-compression-level
-  "9" "The compression level for dired async zip command, from 0-9. This variable is a string, so if you change this value, please set it as a string.")
+(defvar tda/zip-command "zip"
+  "The command name (or the path to the zip command")
+(defvar tda/zip-arguments
+  "-ru9" "The compression level for dired async zip command, from 0-9. This variable is a string, so if you change this value, please set it as a string.")
 
-(defun tmtxt/dired-async-zip (output)
+(defun tda/zip (output)
   "Asynchronously compress marked files to the output file"
   (interactive
    (list (expand-file-name (read-file-name "Add to file: "))))
 
-  (let (dired-async-zip-command
+  (let (command
 		(files (dired-get-marked-files nil current-prefix-arg)))
 	;; the zip command
-	(setq dired-async-zip-command
-		  (concat "zip -ru" tmtxt/dired-async-zip-compression-level " "))
+	(setq command
+		  (concat tda/zip-command " " tda/zip-arguments " "))
 	;; append the output file
-	(setq dired-async-zip-command
-		  (concat dired-async-zip-command (shell-quote-argument output) " "))
+	(setq command
+		  (concat command (shell-quote-argument output) " "))
 	;; add all selected files as argument
 	(dolist (file files)
-	  (setq dired-async-zip-command
-			(concat dired-async-zip-command
+	  (setq command
+			(concat command
 					(shell-quote-argument
 					 (file-name-nondirectory file)) " ")))
+	(message command)
 	;; execute the command asynchronously
-	(tmtxt/dired-async dired-async-zip-command "zip"
-					   'tmtxt/dired-async-zip-process-handler)))
-
-(defun tmtxt/dired-async-zip-process-handler (process event)
-  "Handler for window that displays the zip process.
-
-	Usage: Pass it as an argument when calling tmtxt/dired-async
-
-	The function will print the message to notify user that the process is
-	completed and automatically kill the buffer and window that runs the
-	process."
-
-  ;; check if the process status is exit, then kill the buffer and the window
-  ;; that contain that process after 5 seconds (for the user to see the output)
-  (when (equal (process-status process) 'exit)
-	;; get the current async buffer and window
-	(tmtxt/dired-async-close-window process)))
+	(tat/execute-async command "zip")))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
