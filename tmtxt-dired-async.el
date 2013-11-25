@@ -11,7 +11,7 @@
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
 ;;; argument for command
-(defun tmtxt/dired-async-argument
+(defun tda/command-argument
   (cond-variable argument-string)
   "Check if the cond-variable is non-nil, return the argument string"
   (when (not (equal cond-variable nil))
@@ -57,115 +57,43 @@
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
 ;;; Async Rsync
-(defun tmtxt/dired-async-rsync (dest)
+(defun tda/rsync (dest)
   "Asynchronously copy file using Rsync for dired.
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
    (list (expand-file-name (read-file-name "Rsync to:" (dired-dwim-target-directory)))))
-
+  
   (let ((files (dired-get-marked-files nil current-prefix-arg))
-		dired-async-rsync-command)
+		command)
 	;; the rsync command
-	(setq dired-async-rsync-command "rsync ")
-	;; append the arguments for rsync command
-	(setq dired-async-rsync-command
-		 (concat dired-async-rsync-command
-				 (tmtxt/dired-async-rsync-arguments)))
+	(setq command "rsync -avz --progress ")
 	;; add all selected file names as arguments to the rsync command
 	(dolist (file files)
-	  (setq dired-async-rsync-command
-			(concat dired-async-rsync-command (shell-quote-argument file) " ")))
+	  (setq command (concat command (shell-quote-argument file) " ")))
 	;; append the destination to the rsync command
-	(setq dired-async-rsync-command
-		  (concat dired-async-rsync-command (shell-quote-argument dest)))
+	(setq command (concat command (shell-quote-argument dest)))
 	;; execute the command asynchronously
-	(tmtxt/dired-async dired-async-rsync-command "rsync"
-					   'tmtxt/dired-async-rsync-process-handler)))
+	(tat/execute-async command "rsync" 'tda/rsync-handler)))
 
-(defun tmtxt/dired-async-rsync-process-handler (process event)
-  "Handler for window that displays the async process.
-
-	Usage: After start an tmtxt/dired-async, call this function
-
-	The function will print the message to notify user that the process is
-	completed and automatically kill the buffer and window that runs the
-	process."
-
-  ;; check if the process status is exit, then kill the buffer and the window
-  ;; that contain that process after 5 seconds (for the user to see the output)
-  (when (equal (process-status process) 'exit)
-	;; get the current async buffer and window
-	(tmtxt/dired-async-close-window process)))
-
-;;; some support functions for async rsync
-(defun tmtxt/dired-async-rsync-arguments ()
-  "Return the arguments list for rsync command"
-  (let (argument-string)
-	(setq argument-string
-		  (concat (tmtxt/dired-async-rsync-delete-argument)
-				  (tmtxt/dired-async-rsync-progress-argument)
-				  (tmtxt/dired-async-rsync-verbose-argument)
-				  (tmtxt/dired-async-rsync-archive-argument)
-				  (tmtxt/dired-async-rsync-compress-argument)))))
-
-(defvar tmtxt/dired-async-rsync-delete-method
-  "--delete-during" "Deletion method for dired async rsync delete. Its values can be
---delete-before
---delete-during
---delete-after")
-(defvar tmtxt/dired-async-rsync-allow-delete
-  nil "Allow dired async rsync to delete.
-Do not set this variable manually.")
-(defun tmtxt/dired-async-rsync-delete-argument ()
-  "Return the delete argument for rsync command"
-  (when (equal tmtxt/dired-async-rsync-allow-delete t)
-	  (let (delete-option)
-		(setq
-		 delete-option
-		 (concat "--delete "
-				 (cond ((equal
-						 tmtxt/dired-async-rsync-delete-method
-						 "--delete-during")
-						tmtxt/dired-async-rsync-delete-method)
-					   ((equal
-						 tmtxt/dired-async-rsync-delete-method
-						 "--delete-after")
-						tmtxt/dired-async-rsync-delete-method)
-					   (t "--delete-before"))
-				 " ")))))
-
-(defvar tmtxt/dired-async-rsync-show-progress
-  t "If non-nil, show the progress of rsync process.")
-(defun tmtxt/dired-async-rsync-progress-argument ()
-  "Return the progress argument for rsync command"
-  (tmtxt/dired-async-argument
-   tmtxt/dired-async-rsync-show-progress
-   "--progress "))
-
-(defvar tmtxt/dired-async-rsync-show-verbosity
-  t "If non-nil, run rsync in verbose mode.")
-(defun tmtxt/dired-async-rsync-verbose-argument ()
-  "Return the progress argument for rsync command"
-  (tmtxt/dired-async-argument
-   tmtxt/dired-async-rsync-show-verbosity
-   "--verbose "))
-
-(defvar tmtxt/dired-async-rsync-archive-mode
-  t "If non-nil, use archive mode for rsync.")
-(defun tmtxt/dired-async-rsync-archive-argument ()
-  "Return the progress argument for rsync command"
-  (tmtxt/dired-async-argument
-   tmtxt/dired-async-rsync-archive-mode
-   "--archive "))
-
-(defvar tmtxt/dired-async-rsync-compress-mode
-  t "If non-nil, use compression for rsync")
-(defun tmtxt/dired-async-rsync-compress-argument ()
-  "Return the progress argument for rsync command"
-  (tmtxt/dired-async-argument
-   tmtxt/dired-async-rsync-compress-mode
-   "--compress "))
+(defun tda/rsync-sudo (dest)
+  "Asynchronously copy file using Rsync for dired.
+	This function runs only on Unix-based system.
+	Usage: same as normal dired copy function."
+  (interactive ;; offer dwim target as the suggestion
+   (list (expand-file-name (read-file-name "Rsync to:" (dired-dwim-target-directory)))))
+  
+  (let ((files (dired-get-marked-files nil current-prefix-arg))
+		command)
+	;; the rsync command
+	(setq command "sudo rsync -avz --progress ")
+	;; add all selected file names as arguments to the rsync command
+	(dolist (file files)
+	  (setq command (concat command (shell-quote-argument file) " ")))
+	;; append the destination to the rsync command
+	(setq command (concat command (shell-quote-argument dest)))
+	;; execute the command asynchronously
+	(tat/execute-async command "rsync" nil)))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
