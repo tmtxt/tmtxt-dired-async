@@ -148,48 +148,37 @@
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
 ;;; Uncompress function
-(defun tmtxt/dired-async-unzip ()
+(defvar tda/unzip-command "unzip"
+  "The command name (or path to the unzip command)")
+(defvar tda/unzip-arguments ""
+  "The arguments for passing into the unzip command")
+
+(defun tda/unzip ()
   "Asynchronously decompress the zip file at point"
   (interactive)
 
-  (let (dired-async-unzip-command
-		dired-async-unzip-output-directory
+  (let (command
+		output-directory
 		(file (dired-get-filename 'verbatim)))
 
 	;; new directory name for the output files
-	(setq dired-async-unzip-output-directory
+	(setq output-directory
 		  (file-name-sans-extension
 		   (dired-get-filename 'verbatim)))
 
 	;; the unzip command
-	(setq dired-async-unzip-command "unzip ")
+	(setq command (concat tda/unzip-command " " tda/unzip-arguments " "))
 	;; append the file name
-	(setq dired-async-unzip-command
-		  (concat dired-async-unzip-command
+	(setq command
+		  (concat command
 				  (shell-quote-argument file) " "))
 	;; append the output directory name
-	(setq dired-async-unzip-command
-		  (concat dired-async-unzip-command "-d "
-				  (shell-quote-argument dired-async-unzip-output-directory)))
+	(setq command
+		  (concat command "-d "
+				  (shell-quote-argument output-directory)))
 
 	;; execute the command asynchronously
-	(tmtxt/dired-async dired-async-unzip-command "unzip"
-					   'tmtxt/dired-async-unzip-process-handler)))
-
-(defun tmtxt/dired-async-unzip-process-handler (process event)
-  "Handler for window that displays the zip process.
-
-	Usage: Pass it as an argument when calling tmtxt/dired-async
-
-	The function will print the message to notify user that the process is
-	completed and automatically kill the buffer and window that runs the
-	process."
-
-  ;; check if the process status is exit, then kill the buffer and the window
-  ;; that contain that process after 5 seconds (for the user to see the output)
-  (when (equal (process-status process) 'exit)
-	;; get the current async buffer and window
-	(tmtxt/dired-async-close-window process)))
+	(tat/execute-async command "unzip")))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
