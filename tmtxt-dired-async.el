@@ -57,6 +57,11 @@
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
 ;;; Async Rsync
+(defvar tda/rsync-command-name "rsync"
+  "The name of rsync command (or the path to the rsync command).")
+(defvar tda/rsync-arguments "-avz --progress"
+  "The arguments for passing into the rsync command")
+
 (defun tda/rsync (dest)
   "Asynchronously copy file using Rsync for dired.
 	This function runs only on Unix-based system.
@@ -67,7 +72,8 @@
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		command)
 	;; the rsync command
-	(setq command "rsync -avz --progress ")
+	(setq command
+		  (concat tda/rsync-command-name " " tda/rsync-arguments " "))
 	;; add all selected file names as arguments to the rsync command
 	(dolist (file files)
 	  (setq command (concat command (shell-quote-argument file) " ")))
@@ -86,7 +92,8 @@
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		command)
 	;; the rsync command
-	(setq command "sudo rsync -avz --progress ")
+	(setq command
+		  (concat "sudo " tda/rsync-command-name " " tda/rsync-arguments " "))
 	;; add all selected file names as arguments to the rsync command
 	(dolist (file files)
 	  (setq command (concat command (shell-quote-argument file) " ")))
