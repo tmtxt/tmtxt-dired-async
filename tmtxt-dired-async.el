@@ -10,15 +10,11 @@
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
-;;; argument for command
-(defun tda/command-argument
-  (cond-variable argument-string)
-  "Check if the cond-variable is non-nil, return the argument string"
-  (when (not (equal cond-variable nil))
-	argument-string))
-
+;;; get file size
 (defvar tda/get-files-size-command "du"
-  "The name of the command for getting file size. By default, it's \"du\". If your \"du\" command is outside the load path, set the variable to the path of du executable. For example (setq tda/get-files-size-command \"/usr/bin/du\")")
+  "The name of \"du\" command (or the path to the \"du\" command)")
+(defvar tda/get-files-size-arguments "-hc"
+  "The arguments for passing into the \"du\" command")
 
 ;;; get file size
 (defun tda/get-files-size ()
@@ -27,32 +23,12 @@
   (let ((files (dired-get-marked-files)) command)
 	;; the get files size command
 	(setq command tda/get-files-size-command)
-	(setq command (concat command " -hc "))
+	(setq command (concat command " " tda/get-files-size-arguments " "))
 	;; add selected file names as arguments to the command
 	(dolist (file files)
 	  (setq command (concat command (shell-quote-argument file) " ")))
-	(message command)
 	;; execute the command
-	(tat/execute-async command "file size"
-					   'tda/get-files-size-handler)))
-
-(defun tda/get-files-size-handler (process event)
-  (when (equal (process-status process) 'exit)
-	(let ((current-async-buffer (process-buffer process))
-		  (current-window (selected-window)))
-	(let ((current-async-window (get-buffer-window current-async-buffer)))
-	  ;; set point to the end
-	  (set-window-point current-async-window
-						(buffer-size current-async-buffer))
-	  ;; change to the result window
-	  (select-window current-async-window)
-	  ;; print the message
-	  (message
-	   (buffer-substring (line-beginning-position) (line-end-position)))
-	  ;; switch back the the previous window
-	  (select-window current-window)))
-	;; close the window
-	(tat/close-window process)))
+	(tat/execute-async command "file size")))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
@@ -80,7 +56,7 @@
 	;; append the destination to the rsync command
 	(setq command (concat command (shell-quote-argument dest)))
 	;; execute the command asynchronously
-	(tat/execute-async command "rsync" 'tda/rsync-handler)))
+	(tat/execute-async command "rsync")))
 
 (defun tda/rsync-sudo (dest)
   "Asynchronously copy file using Rsync for dired.
@@ -100,7 +76,7 @@
 	;; append the destination to the rsync command
 	(setq command (concat command (shell-quote-argument dest)))
 	;; execute the command asynchronously
-	(tat/execute-async command "rsync" nil)))
+	(tat/execute-async command "rsync")))
 
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
