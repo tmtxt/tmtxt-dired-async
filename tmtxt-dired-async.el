@@ -183,62 +183,61 @@
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
 ;;; Rsync from multiple directories
-(defvar tmtxt/dired-async-rsync-multiple-file-list
+(defvar tda/rsync-multiple-file-list
   () "The list of the files to be copied")
 
-(defun tmtxt/dired-async-rsync-multiple-mark-file ()
+(defun tda/rsync-multiple-mark-file ()
   "Add file to waiting list for copying"
   (interactive)
   ;; Add file to the list
-  (add-to-list 'tmtxt/dired-async-rsync-multiple-file-list
+  (add-to-list 'tda/rsync-multiple-file-list
 			   (dired-get-filename))
   ;; Message for user
   (message
    (concat "File " (dired-get-filename 'verbatim) " added to waiting list.")))
 
-(defun tmtxt/dired-async-rsync-multiple-empty-list ()
+(defun tda/rsync-multiple-empty-list ()
   "Empty the waiting list"
   (interactive)
   ;; Empty the list
-  (setq tmtxt/dired-async-rsync-multiple-file-list '())
+  (setq tda/rsync-multiple-file-list '())
   ;; message for the user
   (message "Waiting list empty."))
 
-(defun tmtxt/dired-async-rsync-multiple-remove-item ()
+(defun tda/rsync-multiple-remove-item ()
   "Remove the file at point from the waiting list if it is in"
   (interactive)
   (let ((file-to-remove (dired-get-filename)))
 	;; remove the item from the list
-	(setq tmtxt/dired-async-rsync-multiple-file-list
-		  (remove file-to-remove tmtxt/dired-async-rsync-multiple-file-list))
+	(setq tda/rsync-multiple-file-list
+		  (remove file-to-remove tda/rsync-multiple-file-list))
 	;; message for the use
 	(message
 	 (concat "File " (dired-get-filename 'verbatim) " removed from the list."))))
 
 ;; Copy file from multiple directories
-(defun tmtxt/dired-async-rsync-multiple ()
+(defun tda/rsync-multiple ()
   "Mark file in multiple places and then paste in 1 directory"
   (interactive)
 
-  (let (dired-async-rsync-multiple-command)
-	(if (equal tmtxt/dired-async-rsync-multiple-file-list ())
+  (let (command)
+	(if (equal tda/rsync-multiple-file-list ())
 		(progn
 		  (message "Please add file to the waiting list."))
 	  (progn
 		;; the rsync command
-		(setq dired-async-rsync-multiple-command "rsync -arvz --progress ")
+		(setq command (concat tda/rsync-command-name " " tda/rsync-arguments " "))
 		;; add all selected file names as arguments to the rsync command
-		(dolist (file tmtxt/dired-async-rsync-multiple-file-list)
-		  (setq dired-async-rsync-multiple-command
-				(concat dired-async-rsync-multiple-command (shell-quote-argument file) " ")))
+		(dolist (file tda/rsync-multiple-file-list)
+		  (setq command
+				(concat command (shell-quote-argument file) " ")))
 		;; append the destination to the rsync command
-		(setq dired-async-rsync-multiple-command
-			  (concat dired-async-rsync-multiple-command
+		(setq command
+			  (concat command
 					  (shell-quote-argument (expand-file-name default-directory))))
 		;; execute the command asynchronously
-		(tmtxt/dired-async dired-async-rsync-multiple-command "rsync"
-						   'tmtxt/dired-async-rsync-process-handler)
+		(tat/execute-async command "rsync")
 		;; empty the waiting list
-		(tmtxt/dired-async-rsync-multiple-empty-list)))))
+		(tda/rsync-multiple-empty-list)))))
 
 (provide 'tmtxt-dired-async)
