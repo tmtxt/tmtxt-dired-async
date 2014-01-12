@@ -252,8 +252,12 @@
 	;; create the command
 	(setq command (concat command tda/download-command " "))
 	;; append the link
-	(setq command (concat command src))
+	(setq command (concat command (shell-quote-argument src)))
 	;; execute
 	(tat/execute-async command "download")))
+(defun tda/download-clipboard-link-to-current-dir ()
+  "Read the clipboard link and download it into the current dir"
+  (interactive)
+  (tda/download-to-current-dir (x-get-clipboard)))
 
 (provide 'tmtxt-dired-async)
