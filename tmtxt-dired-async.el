@@ -240,4 +240,20 @@
 		;; empty the waiting list
 		(tda/rsync-multiple-empty-list)))))
 
+;;; ----------------------------------------------
+;;; ----------------------------------------------
+;;; download file to current dir
+(defvar tda/download-command "wget"
+  "The download program to download to current dir. The default is wget, ou can replace it to curl, aria2c,...")
+(defun tda/download-to-current-dir (src)
+  "Read the link and download the file to current directory"
+  (interactive (list (read-from-minibuffer "Link: ")))
+  (let ((command ""))
+	;; create the command
+	(setq command (concat command tda/download-command " "))
+	;; append the link
+	(setq command (concat command src))
+	;; execute
+	(tat/execute-async command "download")))
+
 (provide 'tmtxt-dired-async)
