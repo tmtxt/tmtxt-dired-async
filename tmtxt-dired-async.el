@@ -8,6 +8,9 @@
 ;;; TODO: check process exit status, if not success, not close the result window
 ;;; TODO: undo function
 
+;; required for dired-dwim-target-directory
+(require 'dired-aux)
+
 ;;; ----------------------------------------------
 ;;; ----------------------------------------------
 ;;; get file size
@@ -38,12 +41,27 @@
 (defvar tda/rsync-arguments "-avz --progress"
   "The arguments for passing into the rsync command")
 
+(defun cpb/maybe-convert-directory-to-rsync-target (directory)
+  "If directory starts with /scp: it is probably a tramp target
+and should be converted to rsync-compatible destination string,
+else we do (shell-quote-argument (expand-file-name directory)) as
+is required for normal local targets acquired with read-file-name
+and dired-dwim-target-directory."
+  (if (string-prefix-p "/scp:" directory)
+      ;; - throw out the initial "/scp:"
+      ;; - replace spaces with escaped spaces
+      ;; - surround the whole thing with quotes
+      ;; TODO: double-check that target ends with / which in the case of DWIM is what we want
+      (prin1-to-string(replace-regexp-in-string "[[:space:]]" "\\\\\\&" (substring directory 5)))
+    ;; this is what tmtxt-dired-async usually does
+    (shell-quote-argument (expand-file-name directory))))
+
 (defun tda/rsync (dest)
   "Asynchronously copy file using Rsync for dired.
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
-   (list (expand-file-name (read-file-name "Rsync to:" (dired-dwim-target-directory)))))
+   (list (read-file-name "Rsync to:" (dired-dwim-target-directory))))
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		command)
 	;; the rsync command
@@ -53,7 +71,7 @@
 	(dolist (file files)
 	  (setq command (concat command (shell-quote-argument file) " ")))
 	;; append the destination to the rsync command
-	(setq command (concat command (shell-quote-argument dest)))
+	(setq command (concat command (cpb/maybe-convert-directory-to-rsync-target dest)))
 	;; execute the command asynchronously
 	(tat/execute-async command "rsync")))
 
@@ -62,7 +80,7 @@
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
-   (list (expand-file-name (read-file-name "Rsync to:" (dired-dwim-target-directory)))))
+   (list (read-file-name "Rsync to:" (dired-dwim-target-directory))))
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		command)
 	;; the rsync command
@@ -72,7 +90,7 @@
 	(dolist (file files)
 	  (setq command (concat command (shell-quote-argument file) " ")))
 	;; append the destination to the rsync command
-	(setq command (concat command (shell-quote-argument dest)))
+	(setq command (concat command (cpb/maybe-convert-directory-to-rsync-target dest)))
 	;; execute the command asynchronously
 	(tat/execute-async command "rsync")))
 
@@ -81,7 +99,7 @@
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
-   (list (expand-file-name (read-file-name "Rsync delete to:" (dired-dwim-target-directory)))))
+   (list (read-file-name "Rsync delete to:" (dired-dwim-target-directory))))
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		command)
 	;; the rsync command
@@ -91,7 +109,7 @@
 	(dolist (file files)
 	  (setq command (concat command (shell-quote-argument file) " ")))
 	;; append the destination to the rsync command
-	(setq command (concat command (shell-quote-argument dest)))
+	(setq command (concat command (cpb/maybe-convert-directory-to-rsync-target dest)))
 	;; execute the command asynchronously
 	(tat/execute-async command "rsync")))
 
@@ -100,7 +118,7 @@
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
-   (list (expand-file-name (read-file-name "Rsync delete to:" (dired-dwim-target-directory)))))
+   (list (read-file-name "Rsync delete to:" (dired-dwim-target-directory))))
   (let ((files (dired-get-marked-files nil current-prefix-arg))
 		command)
 	;; the rsync command
@@ -110,7 +128,7 @@
 	(dolist (file files)
 	  (setq command (concat command (shell-quote-argument file) " ")))
 	;; append the destination to the rsync command
-	(setq command (concat command (shell-quote-argument dest)))
+	(setq command (concat command (cpb/maybe-convert-directory-to-rsync-target dest)))
 	;; execute the command asynchronously
 	(tat/execute-async command "rsync")))
 
@@ -234,7 +252,7 @@
 		;; append the destination to the rsync command
 		(setq command
 			  (concat command
-					  (shell-quote-argument (expand-file-name default-directory))))
+                                  (cpb/maybe-convert-directory-to-rsync-target default-directory)))
 		;; execute the command asynchronously
 		(tat/execute-async command "rsync")
 		;; empty the waiting list
