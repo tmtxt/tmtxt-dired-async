@@ -42,17 +42,21 @@
   "The arguments for passing into the rsync command")
 
 (defun cpb/maybe-convert-directory-to-rsync-target (directory)
-  "If directory starts with /scp: it is probably a tramp target
-and should be converted to rsync-compatible destination string,
-else we do (shell-quote-argument (expand-file-name directory)) as
-is required for normal local targets acquired with read-file-name
-and dired-dwim-target-directory."
-  (if (string-prefix-p "/scp:" directory)
-      ;; - throw out the initial "/scp:"
+  "If directory starts with /scp: or /ssh: it is probably a tramp
+target and should be converted to rsync-compatible destination
+string, else we do (shell-quote-argument (expand-file-name
+directory)) as is required for normal local targets acquired with
+read-file-name and dired-dwim-target-directory."
+  (if (or (string-prefix-p "/scp:" directory)
+          (string-prefix-p "/ssh:" directory))
+      ;; - throw out the initial "/scp:" or "/ssh:"
       ;; - replace spaces with escaped spaces
       ;; - surround the whole thing with quotes
-      ;; TODO: double-check that target ends with / which in the case of DWIM is what we want
-      (prin1-to-string(replace-regexp-in-string "[[:space:]]" "\\\\\\&" (substring directory 5)))
+      ;; TODO: double-check that target ends with "/""
+      ;; which in the case of DWIM is what we want
+      (prin1-to-string
+       (replace-regexp-in-string "[[:space:]]" "\\\\\\&"
+                                 (substring directory 5)))
     ;; this is what tmtxt-dired-async usually does
     (shell-quote-argument (expand-file-name directory))))
 
